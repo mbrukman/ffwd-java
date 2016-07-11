@@ -55,20 +55,20 @@ public class RiemannOutputPlugin implements OutputPlugin {
 
     @JsonCreator
     public RiemannOutputPlugin(
-        @JsonProperty("filter") Filter filter, @JsonProperty("flushInterval") Long flushInterval,
-        @JsonProperty("protocol") ProtocolFactory protocol,
-        @JsonProperty("retry") RetryPolicy retry,
-        @JsonProperty("riemannTags") Set<String> riemannTags
+        @JsonProperty("filter") Optional<Filter> filter,
+        @JsonProperty("flushInterval") Optional<Long> flushInterval,
+        @JsonProperty("protocol") Optional<ProtocolFactory> protocolFactory,
+        @JsonProperty("retry") Optional<RetryPolicy> retry,
+        @JsonProperty("riemannTags") Optional<Set<String>> riemannTags
     ) {
-        this.filter = Optional.ofNullable(filter).orElseGet(TrueFilter::new);
-        this.flushInterval = Optional.ofNullable(flushInterval).orElse(DEFAULT_FLUSH_INTERVAL);
-        this.protocol = Optional
-            .ofNullable(protocol)
+        this.filter = filter.orElseGet(TrueFilter::new);
+        this.flushInterval = flushInterval.orElse(DEFAULT_FLUSH_INTERVAL);
+        this.protocol = protocolFactory
             .orElseGet(ProtocolFactory.defaultFor())
             .protocol(DEFAULT_PROTOCOL, DEFAULT_PORT);
         this.protocolClient = parseProtocolClient();
-        this.retry = Optional.ofNullable(retry).orElseGet(RetryPolicy.Exponential::new);
-        this.riemannTags = Optional.ofNullable(riemannTags).orElse(DEFAULT_TAGS);
+        this.retry = retry.orElseGet(RetryPolicy.Exponential::new);
+        this.riemannTags = riemannTags.orElse(DEFAULT_TAGS);
     }
 
     private Class<? extends ProtocolClient> parseProtocolClient() {
